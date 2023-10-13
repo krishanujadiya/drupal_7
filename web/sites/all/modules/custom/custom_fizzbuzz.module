@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function custom_fizzbuzz_menu() {
+    $items = array();
+  
+    // Public API endpoint
+    $items['api/v1/data'] = array(
+      'title' => 'API Endpoint',
+      'page callback' => 'drupal_json_output',
+      'page arguments' => array('custom_fizzbuzz_api'),
+      'access arguments' => array('access content'),
+      'type' => MENU_NORMAL_ITEM,
+    );
+
+    // Custom admin panel
+    $items['admin/config/custom-fizzbuzz'] = array(
+        'title' => 'Custom FizzBuzz',
+        'description' => 'Custom FizzBuzz Configuration',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('_custom_fizzbuzz_admin_form'),
+        'access arguments' => array('administer site configuration'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+  
+    return $items;
+  }
+  
+  /**
+   * Callback for the API endpoint.
+   */
+  function custom_fizzbuzz_api() {
+    // Retrieve site name, slogan, and email from configuration.
+    $site_name = variable_get('site_name', 'Drupal');
+    $site_slogan = variable_get('site_slogan', '');
+    $site_email = variable_get('site_mail', '');
+  
+    // Create an array with the desired data.
+    $data = array(
+      'site_name' => $site_name,
+      'slogan' => $site_slogan,
+      'email' => $site_email,
+    );
+  
+    // Return a JSON response.
+    drupal_json_output($data);
+  }
+
+  /**
+ * Form callback for the FizzBuzz form.
+ */
+function _custom_fizzbuzz_admin_form($form, &$form_state) {
+    $form['min'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Min'),
+      '#required' => TRUE,
+    );
+  
+    $form['max'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Max'),
+      '#required' => TRUE,
+    );
+  
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Generate FizzBuzz'),
+    );
+  
+    return $form;
+  }
+
+  
+  /**
+ * Form submission callback for the FizzBuzz form.
+ */
+function _custom_fizzbuzz_admin_form_submit($form, &$form_state) {
+    $min = intval($form_state['values']['min']);
+    $max = intval($form_state['values']['max']);
+  
+    $results = array();
+  
+    for ($i = $min; $i <= $max; $i++) {
+      $output = '';
+  
+      if ($i % 3 === 0) {
+        $output .= 'Fizz';
+      }
+      if ($i % 5 === 0) {
+        $output .= 'Buzz';
+      }
+  
+      $results[] = ($output !== '') ? $output : $i;
+    }
+  
+    // Set the FizzBuzz results as a form error message.
+    form_set_error('fizzbuzz_results', implode(', ', $results));
+  }
+  
+  
