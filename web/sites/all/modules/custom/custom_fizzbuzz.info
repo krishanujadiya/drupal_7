@@ -1,0 +1,4 @@
+name = Custom FizzBuzz
+description = Provides a FizzBuzz form and API endpoint.
+package = Custom
+core = 7.x
